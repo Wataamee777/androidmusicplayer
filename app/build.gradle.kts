@@ -29,11 +29,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+    kotlinOptions { 
+        jvmTarget = "21" 
+    }
+    buildFeatures { 
+        compose = true 
+    }
 }
 
-kapt { correctErrorTypes = true }
+kapt { 
+    correctErrorTypes = true 
+}
 
 val media3Version = "1.6.1"
 val roomVersion = "2.7.1"
@@ -65,5 +71,5 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.10.2")
-    implementation("com.google.guava:guava:33.4.8-android")
+    com.google.guava:guava:33.4.8-android
 }
