@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
 
-private val supportedAudioExtensions = setOf("mp3", "m4a", "aac", "flac", "wav", "ogg", "opus")
+private val supportedAudioExtensions = setOf("mp3", "m4a", "aac", "flac", "wav", "ogg", "opus", "wma", "mid", "midi", "afc", "aiff", "aif", "aifc")
 
 class FileScanner(context: Context) {
     private val extractor = MetadataExtractor(context.applicationContext)
@@ -54,7 +54,7 @@ fun AudioTrack.toMediaItem(): MediaItem = MediaItem.Builder()
         MediaMetadata.Builder()
             .setTitle(title)
             .setArtist(artist)
-            .setArtworkData(artwork, C.PICTURE_TYPE_FRONT_COVER)
+            .setArtworkData(artwork, 3) // ★数値の「3」に書き換えます
             .build(),
     )
     .build()
