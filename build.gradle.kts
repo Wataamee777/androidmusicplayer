@@ -1,3 +1,4 @@
+// 【プロジェクト直下の build.gradle.kts 】
 plugins {
     id("com.android.application") version "9.2.0" apply false
     id("org.jetbrains.kotlin.android") version "2.1.21" apply false
