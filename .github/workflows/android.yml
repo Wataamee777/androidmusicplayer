@@ -27,8 +27,9 @@ jobs:
         with:
           gradle-version: 9.5.1
 
+      # 【修正ポイント】 ./gradlew ではなく、セットアップされた gradle コマンドを直接使います
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
