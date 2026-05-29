@@ -54,7 +54,7 @@ fun AudioTrack.toMediaItem(): MediaItem = MediaItem.Builder()
         MediaMetadata.Builder()
             .setTitle(title)
             .setArtist(artist)
-            .setArtworkData(artwork, C.PICTURE_TYPE_FRONT_COVER)
+            .setArtworkData(artwork, 3) // ★数値の「3」に書き換えます
             .build(),
     )
     .build()
