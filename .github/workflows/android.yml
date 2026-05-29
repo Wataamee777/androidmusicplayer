@@ -26,7 +26,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.12
+          gradle-version: 8.13
 
       # 【修正】ラッパーがないため、頭の ./ と w を取った `gradle` コマンドで直接ビルドします
       - name: Build debug APK
