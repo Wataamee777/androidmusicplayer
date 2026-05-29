@@ -11,6 +11,7 @@ data class PlayerUiState(
     val currentTitle: String = "No track",
     val currentArtist: String = "",
     val currentArtwork: ByteArray? = null,
+    val audioSessionId: Int = 0,
     val positionMs: Long = 0L,
     val durationMs: Long = 0L,
     val playbackMode: PlaybackMode = PlaybackMode.NORMAL,

@@ -74,7 +74,7 @@ private fun App(viewModel: PlayerViewModel) {
                     AppTab.Folders -> FolderBrowserScreen(state, viewModel)
                     AppTab.Queue -> QueueScreen(state, viewModel)
                     AppTab.History -> HistoryScreen(viewModel)
-                    AppTab.Equalizer -> EqualizerScreen()
+                    AppTab.Equalizer -> EqualizerScreen(state.audioSessionId)
                 }
             }
         }

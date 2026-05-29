@@ -53,6 +53,9 @@ class PlayerViewModel @Inject constructor(@ApplicationContext context: Context) 
                         addHistory(mediaItem)
                     }
                     override fun onPlaybackStateChanged(playbackState: Int) = syncPlayerState()
+                    override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                        _uiState.update { it.copy(audioSessionId = audioSessionId) }
+                    }
                 })
                 syncPlayerState()
                 startProgressLoop()
@@ -84,7 +87,10 @@ class PlayerViewModel @Inject constructor(@ApplicationContext context: Context) 
     fun moveQueueItem(from: Int, to: Int) { controller?.moveMediaItem(from, to); syncPlayerState() }
 
     fun cyclePlaybackMode() {
-        val mode = _uiState.value.playbackMode.next()
+        setPlaybackMode(_uiState.value.playbackMode.next())
+    }
+
+    fun setPlaybackMode(mode: PlaybackMode) {
         controller?.repeatMode = when (mode) {
             PlaybackMode.NORMAL, PlaybackMode.FOLDER_RANDOM, PlaybackMode.ALL_RANDOM -> Player.REPEAT_MODE_OFF
             PlaybackMode.ONE_LOOP -> Player.REPEAT_MODE_ONE
@@ -122,6 +128,7 @@ class PlayerViewModel @Inject constructor(@ApplicationContext context: Context) 
                 currentTitle = c.mediaMetadata.title?.toString().orEmpty(),
                 currentArtist = c.mediaMetadata.artist?.toString().orEmpty(),
                 currentArtwork = c.mediaMetadata.artworkData,
+                audioSessionId = c.audioSessionId,
                 positionMs = c.currentPosition.coerceAtLeast(0L),
                 durationMs = c.duration.takeIf { duration -> duration > 0 } ?: 0L,
                 queue = List(c.mediaItemCount) { index -> c.getMediaItemAt(index) },

@@ -25,6 +25,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -37,6 +39,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import me.wataame.player.domain.PlaybackMode
 import me.wataame.player.viewmodel.PlayerUiState
 import me.wataame.player.viewmodel.PlayerViewModel
 import kotlin.math.max
@@ -75,13 +78,52 @@ fun PlayerScreen(state: PlayerUiState, viewModel: PlayerViewModel) {
             IconButton(onClick = { viewModel.seekBy(10_000L) }) { Icon(Icons.Default.FastForward, contentDescription = "10秒送り") }
             IconButton(onClick = viewModel::next) { Icon(Icons.Default.SkipNext, contentDescription = "次へ") }
         }
-        Button(onClick = viewModel::cyclePlaybackMode) { Text("再生モード: ${state.playbackMode.label}") }
+        PlaybackModeSettings(state = state, viewModel = viewModel)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = viewModel::setPointA) { Text("A=${state.abRepeat.pointA?.let(::formatTime) ?: "未設定"}") }
             Button(onClick = viewModel::setPointB) { Text("B=${state.abRepeat.pointB?.let(::formatTime) ?: "未設定"}") }
             Button(onClick = viewModel::clearABRepeat) { Text("A-B Off") }
         }
+        Text(
+            text = if (state.abRepeat.isEnabled) "A-Bリピート有効: ${formatTime(state.abRepeat.pointA ?: 0L)}〜${formatTime(state.abRepeat.pointB ?: 0L)}" else "A-Bリピート: オフ",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
+}
+
+@Composable
+private fun PlaybackModeSettings(state: PlayerUiState, viewModel: PlayerViewModel) {
+    OutlinedCard(Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+        Column(Modifier.padding(12.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("再生設定", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Button(onClick = viewModel::cyclePlaybackMode) { Text("次へ") }
+            }
+            PlaybackMode.entries.forEach { mode ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(
+                        selected = state.playbackMode == mode,
+                        onClick = { viewModel.setPlaybackMode(mode) },
+                    )
+                    Column(Modifier.weight(1f)) {
+                        Text(mode.label)
+                        Text(mode.description(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun PlaybackMode.description(): String = when (this) {
+    PlaybackMode.NORMAL -> "現在のキューを順番に再生して終了"
+    PlaybackMode.ONE_LOOP -> "再生中の1曲だけを繰り返し"
+    PlaybackMode.FOLDER_LOOP -> "選択フォルダ由来のキュー全体を繰り返し"
+    PlaybackMode.FOLDER_RANDOM -> "選択フォルダ由来のキューをシャッフル"
+    PlaybackMode.ALL_RANDOM -> "現在の全キューをシャッフル"
 }
 
 @Composable

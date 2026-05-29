@@ -25,7 +25,11 @@ class PlaybackService : MediaSessionService() {
             .setSeekForwardIncrementMs(SEEK_STEP_MS)
             .setAudioAttributes(AudioAttributes.DEFAULT, true)
             .build()
-
+        player.addListener(object : Player.Listener {
+            override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                AudioSessionRepository.update(audioSessionId)
+            }
+        })
         AudioSessionRepository.update(player.audioSessionId)
 
         mediaSession = MediaSession.Builder(this, player)
