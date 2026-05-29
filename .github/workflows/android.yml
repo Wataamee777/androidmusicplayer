@@ -22,18 +22,27 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # 【修正】AGP 9.2.0 に適した Gradle 8.12 を指定してセットアップします
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.13
 
-      # 【修正】ラッパーがないため、頭の ./ と w を取った `gradle` コマンドで直接ビルドします
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+      # 【追加】Base64文字列から一時的にキーストアファイルを復元
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > /tmp/release.jks
+
+      # 【修正】復元した一時ファイルのパス（/tmp/release.jks）を指定してビルド
+      - name: Build release APK with Signing
+        run: |
+          gradle assembleRelease --stacktrace \
+            -Pandroid.injected.signing.store.file=/tmp/release.jks \
+            -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
