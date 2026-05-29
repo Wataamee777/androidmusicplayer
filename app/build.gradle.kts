@@ -31,6 +31,14 @@ android {
     }
     kotlinOptions { jvmTarget = "21" }
     buildFeatures { compose = true }
+    applicationVariants.all {
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val fileName = "Android-Music-Player-v${versionName}-${buildType.name}.apk"
+            output?.outputFileName = fileName
+        }
+    }
+
 }
 
 kapt { correctErrorTypes = true }
