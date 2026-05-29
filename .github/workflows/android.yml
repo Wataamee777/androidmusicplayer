@@ -27,10 +27,13 @@ jobs:
         with:
           gradle-version: 8.13
 
-      # 【修正】--ignore-garbage (-i) を追加して、改行などのゴミデータを無視してデコードします
+      # 【修正】秘密情報を一度環境変数（env）に安全に格納し、
+      # echo の代わりに、より堅牢な printf を使ってデコードします。
       - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d --ignore-garbage > /tmp/release.jks
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > /tmp/release.jks
 
       - name: Build release APK with Signing
         run: |
