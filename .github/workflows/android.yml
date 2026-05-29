@@ -27,12 +27,11 @@ jobs:
         with:
           gradle-version: 8.13
 
-      # 【追加】Base64文字列から一時的にキーストアファイルを復元
+      # 【修正】--ignore-garbage (-i) を追加して、改行などのゴミデータを無視してデコードします
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > /tmp/release.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d --ignore-garbage > /tmp/release.jks
 
-      # 【修正】復元した一時ファイルのパス（/tmp/release.jks）を指定してビルド
       - name: Build release APK with Signing
         run: |
           gradle assembleRelease --stacktrace \
