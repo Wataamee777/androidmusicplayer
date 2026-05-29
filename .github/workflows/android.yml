@@ -22,14 +22,17 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      # 【修正】gradle-versionの指定を削除し、リポジトリの設定をそのまま使うようにします
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 9.5.1
 
-      # 【修正ポイント】 ./gradlew ではなく、セットアップされた gradle コマンドを直接使います
+      # 【追加】Linux環境で gradlew コマンドを実行できるように実行権限（+x）を与えます
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 【修正】正しい環境で ./gradlew を実行します
       - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
