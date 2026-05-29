@@ -22,17 +22,15 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # 【修正】gradle-versionの指定を削除し、リポジトリの設定をそのまま使うようにします
+      # 【修正】AGP 9.2.0 に適した Gradle 8.12 を指定してセットアップします
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.12
 
-      # 【追加】Linux環境で gradlew コマンドを実行できるように実行権限（+x）を与えます
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      # 【修正】正しい環境で ./gradlew を実行します
+      # 【修正】ラッパーがないため、頭の ./ と w を取った `gradle` コマンドで直接ビルドします
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

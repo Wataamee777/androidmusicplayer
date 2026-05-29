@@ -4,10 +4,10 @@ Android 13 (API 33) をメインターゲットにしたローカル音声ファ
 
 ## 構成
 
-- `app/src/main/java/com/example/androidmusicplayer/playback`: Media3 `MediaSessionService` と通知カスタムアクション
-- `app/src/main/java/com/example/androidmusicplayer/util`: メタデータ抽出とフォルダ再帰スキャン
-- `app/src/main/java/com/example/androidmusicplayer/ui`: Jetpack Compose のプレイヤー、フォルダブラウザ、キュー、履歴、イコライザー
-- `app/src/main/java/com/example/androidmusicplayer/data`: Room の再生履歴DB
+- `app/src/main/java/me/wataame/player/playback`: Media3 `MediaSessionService` と通知カスタムアクション
+- `app/src/main/java/me/wataame/player/util`: メタデータ抽出とフォルダ再帰スキャン
+- `app/src/main/java/me/wataame/player/ui`: Jetpack Compose のプレイヤー、フォルダブラウザ、キュー、履歴、イコライザー
+- `app/src/main/java/me/wataame/player/data`: Room の再生履歴DB
 - `.github/workflows/android.yml`: GitHub Actions の Android ビルド
 
 ## フォルダキュー規則
