@@ -128,7 +128,7 @@ class PlayerViewModel @Inject constructor(@ApplicationContext context: Context) 
                 currentTitle = c.mediaMetadata.title?.toString().orEmpty(),
                 currentArtist = c.mediaMetadata.artist?.toString().orEmpty(),
                 currentArtwork = c.mediaMetadata.artworkData,
-                audioSessionId = c.audioSessionId,
+                // audioSessionId = c.audioSessionId, を削除（Listener側で同期されるため不要）
                 positionMs = c.currentPosition.coerceAtLeast(0L),
                 durationMs = c.duration.takeIf { duration -> duration > 0 } ?: 0L,
                 queue = List(c.mediaItemCount) { index -> c.getMediaItemAt(index) },
