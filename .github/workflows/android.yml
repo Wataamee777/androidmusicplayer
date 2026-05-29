@@ -1,47 +1,54 @@
-name: Android CI
+name: Android Release
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main, master ]
-  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # ここで環境変数として定義することで、下の if 文で使えるようになります
+    env:
+      KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
-          cache: gradle
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+          java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 8.13
 
-      # 【修正】余計なコマンドを排除し、環境変数から直接 base64 に流し込んでデコード
-      - name: Decode Keystore
+      - name: Decode keystore
+        if: ${{ env.KEYSTORE_B64 != '' }}
         run: |
-          base64 --decode <<< "${{ secrets.KEYSTORE_BASE64 }}" > /tmp/release.jks
+          # app/ の中に作成
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.keystore
 
-      - name: Build release APK with Signing
+      - name: Create keystore properties
+        if: ${{ env.KEYSTORE_B64 != '' }}
         run: |
-          gradle assembleRelease --stacktrace \
-            -Pandroid.injected.signing.store.file=/tmp/release.jks \
-            -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
-            -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
-            -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+          # app/ の中に作成
+          cat > app/keystore.properties <<'PROPS'
+          storeFile=release.keystore
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          PROPS
 
-      - name: Upload APK Artifact
+      - name: Build release APK
+        run: gradle assembleRelease
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: app/build/outputs/apk/release/*.apk
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
