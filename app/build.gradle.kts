@@ -26,8 +26,8 @@ android {
         applicationId = "me.wataame.player"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.4"
+        versionCode = 6
+        versionName = "1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -63,16 +63,9 @@ android {
     buildFeatures { 
         compose = true 
     }
-
-    // ─── AGP 8.x で最も安全に動くカスタムファイル名処理 ───
-    addVariantOutputConfigurer {
-        val versionNameStr = "1.4"
-        // release や debug などのビルドタイプ名を取得してファイル名に反映
-        this.outputFileName.set("Android-Music-Player-v$versionNameStr-${this.name}.apk")
-    }
 }
 
-// ─── Kotlinのコンパイルオプション（古いGradle/Kotlinでも競合しない標準の書き方） ───
+// Kotlinのコンパイルオプション（古いGradle/Kotlinでも競合しない最も標準的な書き方）
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
