@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -10,27 +13,65 @@ android {
     namespace = "me.wataame.player"
     compileSdk = 35
 
+    // keystore.properties（CI等で生成されるファイル）の読み込み処理
+    val keystorePropertiesFile = rootProject.file("app/keystore.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
+
     defaultConfig {
         applicationId = "me.wataame.player"
         minSdk = 26
-        targetSdk = 33
-        versionCode = 2
-        versionName = "1.1"
+        targetSdk = 35 // Android 14以降のメディア動作安定化のため35に推奨変更
+        versionCode = 3
+        versionName = "1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            if (!keystoreProperties.isEmpty) {
+                // keystore.properties が存在する場合はリリース署名を適用
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                
+                // Android 11以降の端末で必須となる署名スキームを明示
+                isV2SigningEnabled = true
+                isV3SigningEnabled = true
+            } else {
+                // ローカル環境などファイルがない場合は、ビルドエラーを防ぐためデバッグ署名で代用
+                signingConfig = signingConfigs.getByName("debug")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            
+            // リリースビルドに上記の署名設定を紐付け
+            signingConfig = signingConfigs.getByName("release")
+            
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions { jvmTarget = "21" }
-    buildFeatures { compose = true }
+
+    kotlinOptions { 
+        jvmTarget = "21" 
+    }
+
+    buildFeatures { 
+        compose = true 
+    }
+
     applicationVariants.all {
         outputs.all {
             val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
@@ -38,10 +79,11 @@ android {
             output?.outputFileName = fileName
         }
     }
-
 }
 
-kapt { correctErrorTypes = true }
+kapt { 
+    correctErrorTypes = true 
+}
 
 val media3Version = "1.6.1"
 val roomVersion = "2.7.1"
