@@ -13,34 +13,31 @@ android {
     namespace = "me.wataame.player"
     compileSdk = 35
 
-    // keystore.properties（CI等で生成されるファイル）の読み込み処理
+    // keystore.properties の読み込み
     val keystorePropertiesFile = rootProject.file("app/keystore.properties")
     val keystoreProperties = Properties()
+    var hasKeystore = false
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+        hasKeystore = !keystoreProperties.isEmpty
     }
 
     defaultConfig {
         applicationId = "me.wataame.player"
         minSdk = 26
-        targetSdk = 35 // Android 14以降のメディア動作安定化のため35に設定
-        versionCode = 4
+        targetSdk = 35
+        versionCode = 5
         versionName = "1.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("release") {
-            if (!keystoreProperties.isEmpty) {
-                // keystore.properties が存在する場合はリリース署名を適用
+            if (hasKeystore) {
                 storeFile = file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
-                
-                // 最新のGradle仕様に合わせた署名有効化プロパティ
-                v1SigningEnabled = true
-                v2SigningEnabled = true
             }
         }
     }
@@ -49,8 +46,8 @@ android {
         release {
             isMinifyEnabled = false
             
-            // プロパティが存在し、中身が空でない場合のみリリース署名を割り当てる
-            if (!keystoreProperties.isEmpty) {
+            // 署名ファイルが存在する場合のみ割り当て
+            if (hasKeystore) {
                 signingConfig = signingConfigs.getByName("release")
             }
             
@@ -63,21 +60,22 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    // 非推奨になったkotlinOptionsを最新のcompilerOptionsへ移行
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-    }
-
     buildFeatures { 
         compose = true 
     }
 
-    applicationVariants.all {
-        outputs.all {
-            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            val fileName = "Android-Music-Player-v${versionName}-${buildType.name}.apk"
-            output?.outputFileName = fileName
-        }
+    // ─── AGP 8.x で最も安全に動くカスタムファイル名処理 ───
+    addVariantOutputConfigurer {
+        val versionNameStr = "1.4"
+        // release や debug などのビルドタイプ名を取得してファイル名に反映
+        this.outputFileName.set("Android-Music-Player-v$versionNameStr-${this.name}.apk")
+    }
+}
+
+// ─── Kotlinのコンパイルオプション（古いGradle/Kotlinでも競合しない標準の書き方） ───
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 }
 
