@@ -82,5 +82,5 @@ private fun App(viewModel: PlayerViewModel) {
 }
 
 private enum class AppTab(val label: String) {
-    Player("Player"), Folders("Folders"), Queue("Queue"), History("History"), Equalizer("EQ")
+    Player("プレイヤー"), Folders("フォルダー"), Queue("キュー"), History("履歴"), Equalizer("イコライザー")
 }
