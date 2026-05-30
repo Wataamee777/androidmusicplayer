@@ -23,9 +23,9 @@ android {
     defaultConfig {
         applicationId = "me.wataame.player"
         minSdk = 26
-        targetSdk = 35 // Android 14以降のメディア動作安定化のため35に推奨変更
-        versionCode = 3
-        versionName = "1.2"
+        targetSdk = 35 // Android 14以降のメディア動作安定化のため35に設定
+        versionCode = 4
+        versionName = "1.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -38,12 +38,9 @@ android {
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
                 
-                // Android 11以降の端末で必須となる署名スキームを明示
-                isV2SigningEnabled = true
-                isV3SigningEnabled = true
-            } else {
-                // ローカル環境などファイルがない場合は、ビルドエラーを防ぐためデバッグ署名で代用
-                signingConfig = signingConfigs.getByName("debug")
+                // 最新のGradle仕様に合わせた署名有効化プロパティ
+                v1SigningEnabled = true
+                v2SigningEnabled = true
             }
         }
     }
@@ -52,8 +49,10 @@ android {
         release {
             isMinifyEnabled = false
             
-            // リリースビルドに上記の署名設定を紐付け
-            signingConfig = signingConfigs.getByName("release")
+            // プロパティが存在し、中身が空でない場合のみリリース署名を割り当てる
+            if (!keystoreProperties.isEmpty) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -64,8 +63,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions { 
-        jvmTarget = "21" 
+    // 非推奨になったkotlinOptionsを最新のcompilerOptionsへ移行
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 
     buildFeatures { 
